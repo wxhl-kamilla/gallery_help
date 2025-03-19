@@ -21,3 +21,14 @@ class ArtistService:
         if artist:
             return {"id": artist.id, "name": artist.name, "bio": artist.bio}
         return None
+
+
+    def get_all_artists(self) -> list:
+        """
+        Получает список всех художников.
+
+        Возвращает:
+        - list: Список словарей с данными о каждом художнике
+        """
+        artists = db_session.query(Artist).all()
+        return [{"id": artist.id, "name": artist.name, "bio": artist.bio} for artist in artists]
