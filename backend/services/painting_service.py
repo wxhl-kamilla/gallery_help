@@ -1,50 +1,49 @@
-from backend.database import db_session
+from backend.models.db_session import create_session
 from backend.models.painting import Painting
+from typing import List, Optional
+import io
+import qrcode
 
 
 class PaintingService:
-    """
-    Сервис для работы с данными о картинах.
+    @staticmethod
+    def add_painting(title: str, artist_id: int, **kwargs) -> Painting:
+        """Добавление новой картины"""
+        session = create_session()
+        try:
+            painting = Painting(title=title, artist_id=artist_id, **kwargs)
+            session.add(painting)
+            session.commit()
+            return painting
+        finally:
+            session.close()
 
-    Методы:
-    - get_painting_info: Получает информацию о картине по её ID
-    - get_all_paintings: Получает список всех картин
-    """
+    @staticmethod
+    def get_by_artist(artist_id: int) -> List[Painting]:
+        """Получение картин по ID художника"""
+        session = create_session()
+        try:
+            return session.query(Painting).filter(Painting.artist_id == artist_id).all()
+        finally:
+            session.close()
 
-    def get_painting_info(self, painting_id: int) -> dict:
-        """
-        Получает информацию о картине по её ID.
+    @staticmethod
+    def generate_qr(painting_id: int) -> io.BytesIO:
+        """Генерация QR-кода для картины"""
+        session = create_session()
+        try:
+            painting = session.query(Painting).get(painting_id)
+            if not painting:
+                raise ValueError("Painting not found")
 
-        Параметры:
-        - painting_id (int): ID картины
+            qr = qrcode.QRCode(version=1, box_size=10, border=5)
+            qr.add_data(f"Painting: {painting.title}\nArtist: {painting.artist.name}")
+            qr.make(fit=True)
 
-        Возвращает:
-        - dict: Информация о картине или None, если не найдена
-        """
-        painting = db_session.query(Painting).filter(Painting.id == painting_id).first()
-        if painting:
-            return {
-                "id": painting.id,
-                "title": painting.title,
-                "artist_id": painting.artist_id,
-                "description": painting.description
-            }
-        return None
-
-    def get_all_paintings(self) -> list:
-        """
-        Получает список всех картин.
-
-        Возвращает:
-        - list: Список словарей с данными о каждой картине
-        """
-        paintings = db_session.query(Painting).all()
-        return [
-            {
-                "id": painting.id,
-                "title": painting.title,
-                "artist_id": painting.artist_id,
-                "description": painting.description
-            }
-            for painting in paintings
-        ]
+            img = qr.make_image(fill='black', back_color='white')
+            img_io = io.BytesIO()
+            img.save(img_io, 'PNG')
+            img_io.seek(0)
+            return img_io
+        finally:
+            session.close()

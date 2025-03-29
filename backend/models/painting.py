@@ -1,19 +1,25 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from backend.database import Base
+from datetime import datetime
+import sqlalchemy
+from sqlalchemy import orm
+from sqlalchemy_serializer import SerializerMixin
+from .db_session import SqlAlchemyBase
 
-class Painting(Base):
-    """
-    Модель данных для хранения информации о картинах.
 
-    Атрибуты:
-    - id (int): Уникальный идентификатор картины
-    - title (str): Название картины
-    - artist_id (int): ID художника (внешний ключ)
-    - description (str): Описание картины
-    """
-    __tablename__ = "paintings"
+class Painting(SqlAlchemyBase, SerializerMixin):
+    __tablename__ = 'paintings'
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    artist_id = Column(Integer, ForeignKey("artists.id"), nullable=False)
-    description = Column(String)
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    title = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
+    year = sqlalchemy.Column(sqlalchemy.Integer)
+    style = sqlalchemy.Column(sqlalchemy.String(100))
+    description = sqlalchemy.Column(sqlalchemy.Text)
+    image_url = sqlalchemy.Column(sqlalchemy.String(255))
+    artist_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('artists.id'))
+    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now)
+    updated_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, onupdate=datetime.now)
+
+    artist = orm.relationship("Artist", back_populates='paintings')
+    reviews = orm.relationship("Review", back_populates='painting')
+
+    def __repr__(self):
+        return f'<Painting> {self.id} {self.title}'

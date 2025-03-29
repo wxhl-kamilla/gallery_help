@@ -1,19 +1,23 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from backend.database import Base
+from datetime import datetime
+import sqlalchemy
+from sqlalchemy import orm
+from sqlalchemy_serializer import SerializerMixin
+from .db_session import SqlAlchemyBase
 
-class Review(Base):
-    """
-    Модель данных для хранения отзывов о картинах и выставке.
 
-    Атрибуты:
-    - id (int): Уникальный идентификатор отзыва
-    - painting_id (int): ID картины, о которой оставлен отзыв (внешний ключ)
-    - content (str): Текст отзыва
-    - rating (int): Оценка по шкале 1-5
-    """
-    __tablename__ = "reviews"
+class Review(SqlAlchemyBase, SerializerMixin):
+    __tablename__ = 'reviews'
 
-    id = Column(Integer, primary_key=True, index=True)
-    painting_id = Column(Integer, ForeignKey("paintings.id"), nullable=False)
-    content = Column(String, nullable=False)
-    rating = Column(Integer, nullable=False)
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    text = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
+    rating = sqlalchemy.Column(sqlalchemy.Integer)
+    is_about_exhibition = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
+    painting_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('paintings.id'))
+    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
+    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now)
+
+    painting = orm.relationship("Painting", back_populates='reviews')
+    user = orm.relationship("User")
+
+    def __repr__(self):
+        return f'<Review> {self.id} by User#{self.user_id}'
