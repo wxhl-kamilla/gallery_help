@@ -1,13 +1,19 @@
-# app/models/review.py
-
 from sqlalchemy import Column, Integer, Text, ForeignKey
-from app.models.base import Base
+from sqlalchemy.orm import relationship
+from .base import Base
+
 
 class Review(Base):
-    __tablename__ = "reviews"
+    __tablename__ = 'reviews'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    painting_id = Column(Integer, ForeignKey("paintings.id"))
-    content = Column(Text)
-    rating = Column(Integer)  # от 1 до 5
+    text = Column(Text, nullable=False)
+    rating = Column(Integer)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    painting_id = Column(Integer, ForeignKey('paintings.id'))
+
+    user = relationship("User", back_populates="reviews")
+    painting = relationship("Painting", back_populates="reviews")
+
+    def __repr__(self):
+        return f"<Review(id={self.id}, rating={self.rating})>"

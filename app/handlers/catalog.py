@@ -19,7 +19,7 @@ async def catalog_handler(message: Message):
 
     response = "🖼️ Каталог картин:\n\n"
     for p in paintings:
-        response += f"🎨 1. {p.title}\n"
+        response += f"🎨/art_{p.id} - {p.title}\n"
 
     await message.answer(response)
 
