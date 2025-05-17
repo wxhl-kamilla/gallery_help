@@ -1,0 +1,51 @@
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
+
+# COCO128 dataset https://www.kaggle.com/datasets/ultralytics/coco128 (first 128 images from COCO train2017) by Ultralytics
+# Example usage: python train.py --data coco128.yaml
+# parent
+# ├── yolov5
+# └── datasets
+#     └── coco128  ← downloads here (7 MB)
+
+# Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
+path: ../datasets/gallery # dataset root dir
+train: images/training # train images (relative to 'path') 128 images
+val: images/val # val images (relative to 'path') 128 images
+test: # test images (optional)
+
+# Classes
+names:
+  # 0: Иван Айвазовский, Девятый вал
+  # 1: Виктор Васнецов, Богатыри
+  # 2: Алексей Саврасов, Грачи прилетели
+  # 3: Иван Шишкин, Утро в сосновом лесу
+  # 4: Василий Верещагин, Апофеоз войны
+  # 5: Валентин Серов, девочка с персиками
+  # 6: Илья Репин, Иван Грозный и сын его Иван
+  # 7: Исаак Левитан, Берёзовая роща
+  # 8: Виктор Васнецов, Витязь на распутье
+  # 9: Иван Шишкин, На севере диком
+  # 10: Александр Иванов, Явление Христа народу
+  # 11: Карл Брюллов, Последний день Помпеи
+  # 12: Михаил Нестеров, Видение отрока Варфоломею
+  # 13: Марк Шагал, Над городом
+  # 14: Илья Репин, Бурлаки на Волге
+  0: 0
+  1: 1
+  2: 2
+  3: 3
+  4: 4
+  5: 5
+  6: 6
+  7: 7
+  8: 8
+  9: 9
+  10: 10
+  11: 11
+  12: 12
+  13: 13
+  14: 14
+  15: 15
+
+# Download script/URL (optional)
+download: https://github.com/ultralytics/assets/releases/download/v0.0.0/coco128.zip
