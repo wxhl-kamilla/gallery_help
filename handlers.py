@@ -3,8 +3,8 @@ from database import Database
 from utilss import ImageRecognition, generate_qr_code, get_keyboard_markup
 from config import ROLES, EXCEL_FILES
 import os
-from detect import run
 import pandas as pd
+from detect import run
 
 class Handlers:
     def __init__(self, bot):
@@ -370,10 +370,16 @@ class Handlers:
 
     def handle_photo(self, message):
         """Обработка фотографии для поиска картины"""
-        photo = message.photo
+        
+        file_info = self.bot.get_file(message.photo[0].file_id)
+        downloaded_file = self.bot.download_file(file_info.file_path)
         with open("image.jpg","wb") as f:
-            f.write(photo)
+            f.write(downloaded_file)
         p_id = run(source="image.jpg")
+
+        if(p_id is None):
+            self.bot.reply_to(message,"Ошибка, попробуйте отправить фото как файл")
+            return
 
         p_db = pd.read_excel("data/paintings.xlsx")
         a_db = pd.read_excel("data/artists.xlsx")
