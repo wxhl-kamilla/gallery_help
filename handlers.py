@@ -3,6 +3,7 @@ from database import Database
 from utilss import ImageRecognition, generate_qr_code, get_keyboard_markup
 from config import ROLES, EXCEL_FILES
 import os
+from detect import run
 import pandas as pd
 
 class Handlers:
@@ -369,8 +370,19 @@ class Handlers:
 
     def handle_photo(self, message):
         """Обработка фотографии для поиска картины"""
-        # TODO: Реализовать обработку фотографии
-        pass
+        photo = message.photo
+        with open("image.jpg","wb") as f:
+            f.write(photo)
+        p_id = run(source="image.jpg")
+
+        p_db = pd.read_excel("data/paintings.xlsx")
+        a_db = pd.read_excel("data/artists.xlsx")
+
+        p_row = p_db[p_db['id'] == p_id].iloc[0]
+        a_row = a_db[a_db['id'] == p_row['artist_id']].iloc[0]
+
+        result = f"\"{p_row['title']}\" - {a_row['name']}, {p_row['year']}\n\n{p_row['description']}"
+        self.bot.reply_to(message,result)
 
     def add_review(self, message):
         """Добавление отзыва"""
