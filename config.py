@@ -10,7 +10,7 @@ BOT_TOKEN = os.getenv('BOT_TOKEN')
 # Пути к файлам
 EXCEL_FILES = {
     'artists': 'data/artists.xlsx',
-    'paintings': 'data/paintings.xlsx',
+    'paintings': 'data/paintings1.xlsx',
     'reviews': 'data/reviews.xlsx',
     'gallery_reviews': 'data/gallery_reviews.xlsx',
     'users': 'data/users.xlsx'

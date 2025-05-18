@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+from detect import run
+import pandas as pd
 import qrcode
 from PIL import Image
 import os
@@ -10,8 +12,16 @@ class ImageRecognition:
         pass
 
     def recognize_painting(self, image_path):
-        """Заглушка для распознавания картины. Возвращает None."""
-        return None
+        p_id = run(source=image_path)
+
+        p_db = pd.read_excel("paintings1.xlsx")
+        a_db = pd.read_excel("artists.xlsx")
+
+        p_row = p_db[p_db['id'] == p_id].iloc[0]
+        a_row = a_db[a_db['id'] == p_row['artist_id']].iloc[0]
+
+        result = f"\"{p_row['title']}\" - {a_row['name']}, {p_row['year']}\n\n{p_row['description']}"
+        return result
 
 def generate_qr_code(painting_data, image_path):
     """Генерация QR-кода для картины"""

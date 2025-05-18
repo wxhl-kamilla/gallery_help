@@ -1,6 +1,6 @@
 from telebot import types
 from database import Database
-from utils import ImageRecognition, generate_qr_code, get_keyboard_markup
+from utilss import ImageRecognition, generate_qr_code, get_keyboard_markup
 from config import ROLES, EXCEL_FILES
 import os
 import pandas as pd
