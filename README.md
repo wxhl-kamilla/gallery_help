@@ -26,3 +26,6 @@
 
 ![image](https://github.com/user-attachments/assets/40c5b216-fe31-45bd-a500-b33799162618)
 
+
+
+https://miro.com/app/board/uXjVIONq-8s=/
