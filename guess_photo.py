@@ -29,11 +29,21 @@ async def start_yanGPT(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['state'] = IN_CONVERSATION
 
 
+async def summ(user_text):
+    """доделать промт используя бд"""
+    prompt = (f'отзывы о выставке:'
+              f''
+             f'суммаризуй отзывы и выдай итог')
+    return await call_yandex_gpt(prompt)
+
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обработка текста"""
+    """Обработка текста и фото"""
     user_text = update.message.text
     if any(word in user_text.lower() for word in ["описане", "описание", "описанеи"]):
         response = await guess_painting(user_text)
+    elif 'сумм' in user_text.lower():
+        response = await summ(user_text)
     else:
         response = await generate_chat_response(user_text)
 
