@@ -10,6 +10,7 @@
 
 инструкция:
 запустить gallery_bot.py
+
 миро:
 https://miro.com/app/board/uXjVIONq-8s=/
 
