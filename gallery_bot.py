@@ -4,6 +4,8 @@ from handlers import Handlers
 from telebot import types
 import time
 from requests.exceptions import ConnectionError, ReadTimeout
+import pandas as pd
+from detect import run
 
 bot = telebot.TeleBot(BOT_TOKEN)
 handlers = Handlers(bot)
@@ -304,6 +306,26 @@ def handle_photo(message):
         handlers.handle_painting_image(message)
     else:
         handlers.handle_photo(message)
+
+@bot.message_handler(content_types=['document'])
+def handle_recognition(message):
+    file_info = bot.get_file(message.document.file_id)
+    downloaded_file = bot.download_file(file_info.file_path)
+    with open("image.jpg","wb") as f:
+        f.write(downloaded_file)
+    p_id = run(source="image.jpg")
+
+    if(p_id is None):
+        bot.reply_to(message,"Не удалось распознать картину")
+        return
+    p_db = pd.read_excel("data/paintings.xlsx")
+    a_db = pd.read_excel("data/artists.xlsx")
+
+    p_row = p_db[p_db['id'] == p_id].iloc[0]
+    a_row = a_db[a_db['id'] == p_row['artist_id']].iloc[0]
+
+    result = f"\"{p_row['title']}\" - {a_row['name']}, {p_row['year']}\n\n{p_row['description']}"
+    bot.reply_to(message,result)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
