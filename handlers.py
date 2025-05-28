@@ -1,10 +1,11 @@
 from telebot import types
 from database import Database
 from utilss import ImageRecognition, generate_qr_code, get_keyboard_markup
-from config import ROLES, EXCEL_FILES
+from config import ROLES, EXCEL_FILES, IAM_TOKEN, YANDEX_API_URL, FOLDER_ID
 import os
 import pandas as pd
 from detect import run
+import loadenv
 
 class Handlers:
     def __init__(self, bot):
@@ -508,6 +509,74 @@ class Handlers:
         
         # Меняем состояние
         self.user_states[user_id]['state'] = 'waiting_comment'
+
+    
+
+
+    def summ(user_text):
+        """Суммируй отзывы"""
+        review_db = pd.read_excel("data/reviews.xlsx")
+        gallery_db = pd.read_excel("data/gallery_reviews.xlsx")
+        paintings_db = pd.read_excel("data/paintings.xlsx")
+        prompt = "тебе даются отзывы о картинной галерее в целом, и картинах, представленных на ней, по отдельности. Также тебе даётся сообщение пользователя с просьбой обобщить отзывы по галерее или по какой либо картине в частности. Отзывы о картинах:\n"
+        for i in range(review_db.shape[0]):
+            prompt += f"{paintings_db[paintings_db['id']==review_db.loc[i]['painting_id']].iloc[0]['title']}: {review_db.loc[i]['text']}\n"
+        prompt += "Отзывы о галерее:\n"
+        for i in range(gallery_db.shape[0]):
+            prompt += f"{gallery_db.loc[i]['text']}\n"
+        prompt += f'Сообщение пользователя: {user_text}'
+        return call_yandex_gpt(prompt)
+
+
+    def handle_message(message):
+        """Обработка текста и фото"""
+        user_text = message.text
+        if any(word in user_text.lower() for word in ["описане", "описание", "описанеи"]):
+            response = guess_painting(user_text)
+        elif 'сумм' in user_text.lower():
+            response = summ(user_text)
+        else:
+            response = generate_chat_response(user_text)
+            
+        self.bot.reply_to(message, response)
+
+    def guess_painting(description: str) -> str:
+        """Определение картины по описанию через Yandex GPT"""
+        db = pd.read_excel("data/paintings.xlsx")
+        prompt = ""
+        for i in range(db.shape[0]):
+            prompt += f"{i + 1}. \"{db['title'][i]}\"\nОписание: {db['description'][i]}\n\n"
+        prompt += f'вот вопрос и описание пользователя: {description}'
+        return call_yandex_gpt(prompt)
+
+    def generate_chat_response(user_text: str) -> str:
+        """Генерация ответа для диалога"""
+        prompt = (
+            f"Ты дружелюбный ИИ-помощник в Telegram. "
+            f"Пользователь написал: '{user_text}'. "
+            f"Ответь кратко и естественно (максимум 2 предложения)."
+        )
+        return call_yandex_gpt(prompt)
+
+    def call_yandex_gpt(prompt: str) -> str:
+        """Запрос к Yandex GPT API"""
+        headers = {
+            "Authorization": f"Bearer {IAM_TOKEN}",
+            "Content-Type": "application/json",
+        }
+        data = {
+            "modelUri": f"gpt://{FOLDER_ID}/yandexgpt-lite",
+            "completionOptions": {
+                "temperature": 0.5,
+                "maxTokens": 200
+            },
+            "messages": [{"role": "user", "text": prompt}]
+        }
+        try:
+            response = requests.post(YANDEX_API_URL, headers=headers, json=data).json()
+            return response.get("result", {}).get("alternatives", [{}])[0].get("message", {}).get("text", "Ошибка обработки запроса.")
+        except Exception as e:
+            return "Упс, что-то пошло не так..."
 
     def handle_review_text(self, message):
         """Обработка текстового отзыва"""
