@@ -29,5 +29,33 @@ https://miro.com/app/board/uXjVIONq-8s=/
 
 ![image](https://github.com/user-attachments/assets/40c5b216-fe31-45bd-a500-b33799162618)
 
+ИНСТРУКЦИЯ
+1. Сначала нужно установить Python, если он еще не установлен:
+   - Скачать Python с официального сайта: https://www.python.org/downloads/
+   - При установке обязательно отметить галочку "Add Python to PATH"
+
+2. Открыть командную строку (CMD) или PowerShell и перейти в папку с проектом:
+cd путь/к/папке/с/проектом
+
+3. Создать виртуальное окружение (это изолированная среда для Python):
+python -m venv venv
+
+4. Активировать виртуальное окружение:
+   - Для Windows:
+      venv\Scripts\activate
+   
+   - Для Linux/Mac:
+      source venv/bin/activate
+
+5. Установить необходимые библиотеки:
+pip install -r requirements.txt
+
+6. Запустить бота:
+python gallery_bot.py
+
+Для остановки бота:
+- Нажмите Ctrl+C в консоли
+- Для деактивации виртуального окружения введите:
+deactivate
 
 
